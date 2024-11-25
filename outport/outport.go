@@ -35,7 +35,6 @@ type outport struct {
 
 type NewTransactionInPool struct {
 	TxHash            []byte                   `protobuf:"bytes,1,opt,name=TxHash,proto3" json:"txHash"`
-	Nonce             uint64                   `json:"nonce"`
 	CurrentBlockNonce uint64                   `protobuf:"varint,2,opt,name=CurrentBlockNonce,proto3" json:"currentBlockNonce,omitempty"`
 	Timestamp         uint64                   `protobuf:"varint,3,opt,name=Timestamp,proto3" json:"timestamp,omitempty"`
 	SenderShardID     uint32                   `protobuf:"varint,4,opt,name=SourceShardID,proto3" json:"sourceShardID,omitempty"`
@@ -44,7 +43,7 @@ type NewTransactionInPool struct {
 }
 
 // NewOutport will create a new instance of proxy
-func NewOutport(retrialInterval time.Duration, cfg outportcore.OutportConfig) (*outport, error) {
+func NewOutport(retrialInterval time.Duration, cfg outportcore.OutportConfig, chainHandler data.ChainHandler) (*outport, error) {
 	if retrialInterval < minimumRetrialInterval {
 		return nil, fmt.Errorf("%w, provided: %d, minimum: %d", ErrInvalidRetrialInterval, retrialInterval, minimumRetrialInterval)
 	}
@@ -57,6 +56,7 @@ func NewOutport(retrialInterval time.Duration, cfg outportcore.OutportConfig) (*
 		logHandler:        log.Log,
 		timeForDriverCall: maxTimeForDriverCall,
 		config:            cfg,
+		chainHandler:      chainHandler,
 	}, nil
 }
 

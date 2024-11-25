@@ -33,7 +33,7 @@ func CreateOutport(args *OutportFactoryArgs) (outport.OutportHandler, error) {
 		IsInImportDBMode: args.IsImportDB,
 	}
 
-	outportHandler, err := outport.NewOutport(args.RetrialInterval, cfg)
+	outportHandler, err := outport.NewOutport(args.RetrialInterval, cfg, args.ChainHandler)
 	if err != nil {
 		return nil, err
 	}
