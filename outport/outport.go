@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/multiversx/mx-chain-core-go/core/check"
+	"github.com/multiversx/mx-chain-core-go/data"
 	outportcore "github.com/multiversx/mx-chain-core-go/data/outport"
 	"github.com/multiversx/mx-chain-core-go/data/rewardTx"
 	"github.com/multiversx/mx-chain-core-go/data/smartContractResult"
@@ -29,11 +30,17 @@ type outport struct {
 	timeForDriverCall time.Duration
 	messageCounter    uint64
 	config            outportcore.OutportConfig
+	chainHandler      data.ChainHandler
 }
 
 type NewTransactionInPool struct {
-	TxHash      []byte                   `protobuf:"bytes,1,opt,name=TxHash,proto3" json:"txHash"`
-	Transaction *transaction.Transaction `protobuf:"bytes,2,opt,name=Transaction,proto3" json:"transaction,omitempty"`
+	TxHash            []byte                   `protobuf:"bytes,1,opt,name=TxHash,proto3" json:"txHash"`
+	Nonce             uint64                   `json:"nonce"`
+	CurrentBlockNonce uint64                   `protobuf:"varint,2,opt,name=CurrentBlockNonce,proto3" json:"currentBlockNonce,omitempty"`
+	Timestamp         uint64                   `protobuf:"varint,3,opt,name=Timestamp,proto3" json:"timestamp,omitempty"`
+	SenderShardID     uint32                   `protobuf:"varint,4,opt,name=SourceShardID,proto3" json:"sourceShardID,omitempty"`
+	ReceiverShardID   uint32                   `protobuf:"varint,5,opt,name=DestinationShardID,proto3" json:"destinationShardID,omitempty"`
+	Transaction       *transaction.Transaction `protobuf:"bytes,6,opt,name=Transaction,proto3" json:"transaction,omitempty"`
 }
 
 // NewOutport will create a new instance of proxy
@@ -355,8 +362,10 @@ func (o *outport) NewTransactionInPool(key []byte, value interface{}) {
 	if check.IfNilReflect(value) {
 		return
 	}
+
 	switch t := value.(type) {
 	case *txcache.WrappedTransaction:
+
 		tx, isTransaction := t.Tx.(*transaction.Transaction)
 		if !isTransaction {
 			log.Warn("programming error in NewTransactionHandlerInPool, improper value",
@@ -364,11 +373,21 @@ func (o *outport) NewTransactionInPool(key []byte, value interface{}) {
 				"value.Tx type", fmt.Sprintf("%T", t.Tx))
 			return
 		}
+
+		nonce := o.chainHandler.GetCurrentBlockHeader().GetNonce()
+
+		//scf.dataComponents.Blockchain().GetCurrentBlockHeader().GetNonce()
 		finalTx := NewTransactionInPool{
-			TxHash:      key,
-			Transaction: tx,
+			TxHash:            key,
+			CurrentBlockNonce: nonce,
+			Timestamp:         uint64(time.Now().Unix()),
+			SenderShardID:     t.SenderShardID,
+			ReceiverShardID:   t.ReceiverShardID,
+			Transaction:       tx,
 		}
+
 		log.Debug("Hey Tx ", "hash", "SndAddr", finalTx.TxHash, finalTx.Transaction.SndAddr)
+
 		for _, driver := range o.drivers {
 			err := driver.NewTransactionInPool(finalTx)
 			if err == nil {

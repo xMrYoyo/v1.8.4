@@ -16,7 +16,7 @@ type Driver interface {
 	SaveValidatorsRating(validatorsRating *outportcore.ValidatorsRating) error
 	SaveAccounts(accounts *outportcore.Accounts) error
 	FinalizedBlock(finalizedBlock *outportcore.FinalizedBlock) error
-	NewTransactionInPool(transaction interface{}) error
+	NewTransactionInPool(transaction interface{}) error // Txs
 	GetMarshaller() marshal.Marshalizer
 	SetCurrentSettings(config outportcore.OutportConfig) error
 	RegisterHandler(handlerFunction func() error, topic string) error

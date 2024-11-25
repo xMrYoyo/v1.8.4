@@ -91,7 +91,7 @@ func (o *hostDriver) FinalizedBlock(finalizedBlock *outport.FinalizedBlock) erro
 	return o.handleAction(finalizedBlock, outport.TopicFinalizedBlock)
 }
 
-// NewTransactionInPool will handle the new tx in pool
+// NewTransactionInPool will handle the new txs in pool
 func (o *hostDriver) NewTransactionInPool(transaction interface{}) error {
 	return o.handleAction(transaction, "NewTransactionInPool")
 }

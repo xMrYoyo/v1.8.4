@@ -1078,7 +1078,7 @@ func (nr *nodeRunner) CreateManagedStatusComponents(
 	nodesCoordinator nodesCoordinator.NodesCoordinator,
 	isInImportMode bool,
 	cryptoComponents mainFactory.CryptoComponentsHolder,
-	dataComponents mainFactory.DataComponentsHolder,
+	dataComponents mainFactory.DataComponentsHolder, // TX_POOL
 ) (mainFactory.StatusComponentsHandler, error) {
 	statArgs := statusComp.StatusComponentsFactoryArgs{
 		Config:               *nr.configs.GeneralConfig,

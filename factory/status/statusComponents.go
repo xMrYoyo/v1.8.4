@@ -97,6 +97,9 @@ func NewStatusComponentsFactory(args StatusComponentsFactoryArgs) (*statusCompon
 	if check.IfNil(args.CryptoComponents) {
 		return nil, errors.ErrNilCryptoComponents
 	}
+	if check.IfNil(args.DataComponents) {
+		return nil, errors.ErrNilDataComponents
+	}
 
 	return &statusComponentsFactory{
 		config:               args.Config,

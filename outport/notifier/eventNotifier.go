@@ -103,6 +103,7 @@ func (en *eventNotifier) NewTransactionInPool(transaction interface{}) error {
 		// 	return fmt.Errorf("%w in eventNotifier.NewTransactionInPool while posting event data", err)
 		log.Error("Avoiding error => NewTransactionInPool", "error", err)
 	}
+
 	return nil
 }
 

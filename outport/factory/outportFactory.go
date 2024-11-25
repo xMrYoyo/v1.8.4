@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/multiversx/mx-chain-core-go/data"
 	outportcore "github.com/multiversx/mx-chain-core-go/data/outport"
 	indexerFactory "github.com/multiversx/mx-chain-es-indexer-go/process/factory"
 	"github.com/multiversx/mx-chain-go/outport"
@@ -17,6 +18,7 @@ type OutportFactoryArgs struct {
 	ElasticIndexerFactoryArgs indexerFactory.ArgsIndexerFactory
 	EventNotifierFactoryArgs  *EventNotifierFactoryArgs
 	HostDriversArgs           []ArgsHostDriverFactory
+	ChainHandler              data.ChainHandler
 }
 
 // CreateOutport will create a new instance of OutportHandler
