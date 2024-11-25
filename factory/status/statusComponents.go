@@ -237,6 +237,7 @@ func (scf *statusComponentsFactory) createOutportDriver() (outport.OutportHandle
 		EventNotifierFactoryArgs:  eventNotifierArgs,
 		HostDriversArgs:           hostDriversArgs,
 		IsImportDB:                scf.isInImportMode,
+		ChainHandler:              scf.dataComponents.Blockchain(),
 	}
 
 	return outportDriverFactory.CreateOutport(outportFactoryArgs)
