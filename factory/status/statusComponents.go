@@ -48,6 +48,7 @@ type StatusComponentsFactoryArgs struct {
 	NetworkComponents    factory.NetworkComponentsHolder
 	StateComponents      factory.StateComponentsHolder
 	CryptoComponents     factory.CryptoComponentsHolder
+	DataComponents       factory.DataComponentsHolder
 	IsInImportMode       bool
 }
 
@@ -64,6 +65,7 @@ type statusComponentsFactory struct {
 	networkComponents    factory.NetworkComponentsHolder
 	stateComponents      factory.StateComponentsHolder
 	cryptoComponents     factory.CryptoComponentsHolder
+	dataComponents       factory.DataComponentsHolder
 	isInImportMode       bool
 }
 
@@ -109,6 +111,7 @@ func NewStatusComponentsFactory(args StatusComponentsFactoryArgs) (*statusCompon
 		stateComponents:      args.StateComponents,
 		isInImportMode:       args.IsInImportMode,
 		cryptoComponents:     args.CryptoComponents,
+		dataComponents:       args.DataComponents,
 	}, nil
 }
 
@@ -154,6 +157,9 @@ func (scf *statusComponentsFactory) Create() (*statusComponents, error) {
 	}
 
 	_, cancelFunc := context.WithCancel(context.Background())
+
+	scf.dataComponents.Datapool().Transactions().RegisterOnAdded(outportHandler.NewTransactionInPool)
+	scf.dataComponents.Datapool().UnsignedTransactions().RegisterOnAdded(outportHandler.NewTransactionInPool)
 
 	statusComponentsInstance := &statusComponents{
 		nodesCoordinator:    scf.nodesCoordinator,

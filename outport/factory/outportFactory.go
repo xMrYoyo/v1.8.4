@@ -73,12 +73,13 @@ func createAndSubscribeElasticDriverIfNeeded(
 		return nil
 	}
 
-	elasticDriver, err := indexerFactory.NewIndexer(args)
-	if err != nil {
-		return err
-	}
+	// elasticDriver, err := indexerFactory.NewIndexer(args)
+	// if err != nil {
+	// 	return err
+	// }
 
-	return outport.SubscribeDriver(elasticDriver)
+	// return outport.SubscribeDriver(elasticDriver)
+	return nil
 }
 
 func createAndSubscribeEventNotifierIfNeeded(

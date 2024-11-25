@@ -42,6 +42,9 @@ func (n *disabledOutport) SaveAccounts(_ *outportcore.Accounts) {
 func (n *disabledOutport) FinalizedBlock(_ *outportcore.FinalizedBlock) {
 }
 
+func (n *disabledOutport) NewTransactionInPool(key []byte, value interface{}) {
+}
+
 // Close does nothing
 func (n *disabledOutport) Close() error {
 	return nil

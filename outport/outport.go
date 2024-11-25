@@ -8,6 +8,10 @@ import (
 
 	"github.com/multiversx/mx-chain-core-go/core/check"
 	outportcore "github.com/multiversx/mx-chain-core-go/data/outport"
+	"github.com/multiversx/mx-chain-core-go/data/rewardTx"
+	"github.com/multiversx/mx-chain-core-go/data/smartContractResult"
+	"github.com/multiversx/mx-chain-core-go/data/transaction"
+	"github.com/multiversx/mx-chain-go/storage/txcache"
 	logger "github.com/multiversx/mx-chain-logger-go"
 )
 
@@ -25,6 +29,11 @@ type outport struct {
 	timeForDriverCall time.Duration
 	messageCounter    uint64
 	config            outportcore.OutportConfig
+}
+
+type NewTransactionInPool struct {
+	TxHash      []byte                   `protobuf:"bytes,1,opt,name=TxHash,proto3" json:"txHash"`
+	Transaction *transaction.Transaction `protobuf:"bytes,2,opt,name=Transaction,proto3" json:"transaction,omitempty"`
 }
 
 // NewOutport will create a new instance of proxy
@@ -338,6 +347,43 @@ func (o *outport) finalizedBlockBlocking(finalizedBlock *outportcore.FinalizedBl
 		if o.shouldTerminate() {
 			return
 		}
+	}
+}
+
+// NewTransactionHandlerInPool implements OutportHandler.
+func (o *outport) NewTransactionInPool(key []byte, value interface{}) {
+	if check.IfNilReflect(value) {
+		return
+	}
+	switch t := value.(type) {
+	case *txcache.WrappedTransaction:
+		tx, isTransaction := t.Tx.(*transaction.Transaction)
+		if !isTransaction {
+			log.Warn("programming error in NewTransactionHandlerInPool, improper value",
+				"value type", fmt.Sprintf("%T", value),
+				"value.Tx type", fmt.Sprintf("%T", t.Tx))
+			return
+		}
+		finalTx := NewTransactionInPool{
+			TxHash:      key,
+			Transaction: tx,
+		}
+		log.Debug("Hey Tx ", "hash", "SndAddr", finalTx.TxHash, finalTx.Transaction.SndAddr)
+		for _, driver := range o.drivers {
+			err := driver.NewTransactionInPool(finalTx)
+			if err == nil {
+				return
+			}
+		}
+	case *rewardTx.RewardTx:
+		// TODO something with the reward transaction
+		_ = t
+	case *smartContractResult.SmartContractResult:
+		// TODO something with the smart contract result transaction
+		_ = t
+	default:
+		log.Warn("programming error in NewTransactionHandlerInPool, improper value",
+			"value type", fmt.Sprintf("%T", value))
 	}
 }
 
